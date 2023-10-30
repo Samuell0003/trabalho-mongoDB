@@ -1,10 +1,10 @@
-#"Crie 15 queries para busca de projetos, tarefas e usuários";
+#Crie 15 queries para busca de projetos, tarefas e usuários;
 
-##"Buscar todos os projetos com data de início após uma data específica (por exemplo, 2023-01-01)":
+##Buscar todos os projetos com data de início após uma data específica (por exemplo, 2023-01-01):
 db.Project.find({ start_date: { $gte: ISODate("2023-01-01") } })
 
 
-##"Buscar todas as tarefas com status "Em andamento" de um projeto específico":
+##Buscar todas as tarefas com status "Em andamento" de um projeto específico:
 db.Task.find({ project_id: ObjectId("project_id_here"), status: "Em andamento" })
 
 
