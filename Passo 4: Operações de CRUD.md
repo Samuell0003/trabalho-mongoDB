@@ -456,51 +456,55 @@ Result:
 
 #Crie 15 queries para busca de projetos, tarefas e usuários;
 
-Buscar todos os projetos com data de início após uma data específica (por exemplo, 2023-01-01):
+## Buscar todos os projetos com data de início após uma data específica (por exemplo, 2023-01-01):
 ```
 db.Project.find({ start_date: { $gte: ISODate("2023-01-01") } })
 ```
 
-##Buscar todas as tarefas com status "Em andamento" de um projeto específico:
+## Buscar todas as tarefas com status "Em andamento" de um projeto específico:
 ```
 db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.status": "Em andamento"}}])
 ```
 
-##Buscar todos os usuários cujo primeiro nome comece com "John":
+## Buscar todos os usuários cujo primeiro nome comece com "John":
 ```
 db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.user.first_name": /^John/i}}])
 ```
 
-##Buscar todas as tarefas com prioridade "Alta" ou "Média" de um projeto específico:
+## Buscar todas as tarefas com prioridade "Alta" ou "Média" de um projeto específico:
 ```
 db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.priority": { $in: ["Alta", "Média"] }}}])
 ```
 
 
-##Buscar todos os projetos com nome que contenha uma palavra-chave (por exemplo, "projeto") e data de término no futuro:
+## Buscar todos os projetos com nome que contenha uma palavra-chave (por exemplo, "projeto") e data de término no futuro:
 ```
 db.Project.find({ name: { $regex: /projeto/i }, end_date: { $gte: new Date() } })
 ```
 
 
-##Buscar todas as tarefas atribuídas a usuários com um determinado domínio de e-mail (por exemplo, "@example.com"):
-db.Task.find({ "user.email": { $regex: /@example.com$/i } })
+## Buscar todas as tarefas atribuídas a usuários com um determinado domínio de e-mail (por exemplo, "@example.com"):
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.user.email":"william@example.com"}}])
+```
 
 
-##Buscar todos os projetos ordenados por data de término em ordem crescente:
+## Buscar todos os projetos ordenados por data de término em ordem crescente:
 ```
 db.Project.find({}).sort({ end_date: 1 })
 ```
 
-##Buscar todas as tarefas com uma descrição que contenha uma palavra específica (por exemplo, "importante"):
-db.Task.find({ description: { $regex: /importante/i } })
+## Buscar todas as tarefas com uma descrição que contenha uma palavra específica (por exemplo, "importante"):
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.description":{ $regex: /importante/i }}}])
+```
 
+## Buscar todos os usuários que não têm um número de telefone celular especificado:
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.user.cell_phone":{ $exists: false }}}])
+```
 
-##Buscar todos os usuários que não têm um número de telefone celular especificado:
-db.User.find({ cell_phone: { $exists: false } })
-
-
-##Buscar todos os projetos com data de término no mês atual:
+## Buscar todos os projetos com data de término no mês atual:
 ```
 db.Project.find({
     end_date: {
@@ -509,3 +513,38 @@ db.Project.find({
     }
 })
 ```
+
+## Buscar Task em pendência em um determinado Projeto.
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "_id": ObjectId("653fb03008f67cc3e3246fef"),"tasks.status":"Pendente"}}])
+```
+
+## Buscar todos os projetos em andamento (com data de término no futuro):
+```
+db.Project.find({
+    "end_date": { $gte: new Date() }
+})
+```
+
+## Buscar todos os projetos com um nome que contenha uma palavra-chave:
+```
+db.Project.find({
+    "name": { $regex: /palavra-chave/i }
+})
+```
+
+## Buscar todos os projetos com tarefas concluídas (status "Concluída"):
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "tasks.status":"Concluída"}}])
+```
+
+## Buscar todas as tarefas em um projeto específico que têm data de início em um intervalo de datas:
+```
+db.Project.aggregate([ { $unwind: "$tasks" }, { $match: { "_id": ObjectId("653fb03008f67cc3e3246fef"),
+    "tasks.start_date":{
+        $gte: ISODate("DataInicioMinimaAqui"),
+        $lte: ISODate("DataInicioMaximaAqui")
+    }}}])
+```
+
+
